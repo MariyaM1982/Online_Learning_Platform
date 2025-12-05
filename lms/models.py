@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils import timezone
+from users.models import User
 
 
 class Course(models.Model):
@@ -8,6 +8,14 @@ class Course(models.Model):
     description = models.TextField(blank=True, null=True, verbose_name='Описание')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    owner = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        related_name='courses',
+        verbose_name='Владелец',
+        null=True,
+        blank=True
+    )
 
     def __str__(self):
         return self.title
@@ -25,6 +33,14 @@ class Lesson(models.Model):
     video_url = models.URLField(verbose_name='Ссылка на видео')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    owner = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        related_name='owned_lessons',
+        verbose_name='Владелец',
+        null=True,
+        blank=True
+    )
 
     def __str__(self):
         return self.title
