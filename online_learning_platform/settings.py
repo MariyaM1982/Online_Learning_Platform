@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_filters',
     'users',
     'lms',
 ]
@@ -136,4 +137,5 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
 
+# --- Единственный раз ---
 AUTH_USER_MODEL = 'users.User'

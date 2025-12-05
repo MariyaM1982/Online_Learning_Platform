@@ -1,8 +1,12 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User
-from .serializers import UserProfileSerializer
+
+from .filters import PaymentFilter
+from .models import User, Payment
+from .serializers import UserProfileSerializer, PaymentSerializer
+
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
     """
@@ -14,3 +18,17 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         # Возвращаем текущего пользователя
         return self.request.user
+
+class PaymentListAPIView(generics.ListAPIView):
+    """
+    Вывод списка платежей с фильтрацией:
+    - ?ordering=payment_date — по возрастанию даты
+    - ?ordering=-payment_date — по убыванию
+    - ?paid_course=1 — только по курсу с id=1
+    - ?paid_lesson=2 — только по уроку с id=2
+    - ?payment_method=transfer — только переводы
+    """
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = PaymentFilter

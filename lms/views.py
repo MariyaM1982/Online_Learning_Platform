@@ -8,7 +8,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     CRUD для курсов через ViewSet
     Доступны: GET, POST, PUT, PATCH, DELETE
     """
-    queryset = Course.objects.all()
+    queryset = Course.objects.prefetch_related('lessons').all()
     serializer_class = CourseSerializer
 
 class LessonListCreateAPIView(generics.ListCreateAPIView):
