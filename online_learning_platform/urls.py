@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 from lms.views import CourseViewSet
 
 # Создаём router для ViewSet
@@ -28,4 +30,8 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/lessons/', include('lms.urls')),
     path('api/users/', include('users.urls')),
+
+    # JWT
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),   # login
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
