@@ -3,15 +3,15 @@ from users.permissions import IsModerator
 
 
 class IsOwnerOrModerator(permissions.BasePermission):
-    """
-    Разрешает доступ:
-    - Владельцу объекта
-    - Модераторам
-    - Администраторам
-    """
     def has_object_permission(self, request, view, obj):
-        # Все модераторы и админы — могут
-        if IsModerator().has_permission(request, view):
+        # Админ — всегда может
+        if request.user.is_superuser:
             return True
-        # Владелец — может
+
+        # Модератор — может только если метод не DELETE
+        if request.user.groups.filter(name='Модераторы').exists():
+            if request.method != 'DELETE':
+                return True
+
+        # Владелец — может всё
         return obj.owner == request.user
