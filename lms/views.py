@@ -1,8 +1,13 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, generics, permissions
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from users.permissions import IsModerator
-from .models import Course, Lesson
+from .models import Course, Lesson, Subscription
 from .permissions import IsOwnerOrModerator
 from .serializers import CourseSerializer, LessonSerializer
+from .paginators import CourseLessonPagination
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -13,6 +18,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.prefetch_related('lessons').all()
     serializer_class = CourseSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = CourseLessonPagination
 
     def get_queryset(self):
         # Модераторы и админы видят всё
@@ -34,7 +40,9 @@ class CourseViewSet(viewsets.ModelViewSet):
 
 
 class LessonListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    pagination_class = CourseLessonPagination
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
@@ -62,13 +70,41 @@ class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = LessonSerializer
 
     def get_permissions(self):
-        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+        if self.request.method in ['PUT', 'PATCH']:
+            permission_classes = [permissions.IsAuthenticated, IsOwnerOrModerator]
+        elif self.request.method == 'DELETE':
+            # ✅ Владелец и админ — могут удалять, модераторы — нет
             permission_classes = [permissions.IsAuthenticated, IsOwnerOrModerator]
         else:
             permission_classes = [permissions.IsAuthenticated]
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        if self.request.user.groups.filter(name='Модераторы').exists() or self.request.user.is_superuser:
+        user = self.request.user
+        if user.groups.filter(name='Модераторы').exists() or user.is_superuser:
             return Lesson.objects.all()
-        return Lesson.objects.filter(owner=self.request.user)
+        return Lesson.objects.filter(owner=user)
+
+class SubscriptionAPIView(APIView):
+    """
+    Управление подпиской пользователя на курс
+    POST: подписаться/отписаться
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        course_id = request.data.get('course_id')
+        course = get_object_or_404(Course, id=course_id)
+
+        # Проверяем, есть ли уже подписка
+        subs_item = Subscription.objects.filter(user=user, course=course)
+
+        if subs_item.exists():
+            subs_item.delete()
+            message = 'Подписка удалена'
+        else:
+            Subscription.objects.create(user=user, course=course)
+            message = 'Подписка добавлена'
+
+        return Response({"message": message})
