@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -7,7 +8,11 @@ from .filters import PaymentFilter
 from .models import User, Payment
 from .serializers import UserProfileSerializer, PaymentSerializer, UserRegisterSerializer
 
-
+@extend_schema(
+    description="Регистрация нового пользователя",
+    request=UserRegisterSerializer,
+    responses={201: UserRegisterSerializer}
+)
 class UserRegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegisterSerializer

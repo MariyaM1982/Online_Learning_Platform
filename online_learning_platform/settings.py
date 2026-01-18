@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
+    'drf_spectacular',
     'users',
     'lms',
 ]
@@ -133,7 +134,23 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',  # Все эндпоинты — только для авторизованных
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20
+    'PAGE_SIZE': 20,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
-# --- Единственный раз ---
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Online Learning Platform API',
+    'DESCRIPTION': 'API для платформы онлайн-обучения с курсами, уроками, подписками и платежами',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayOperationId': True,
+    },
+    'COMPONENT_SPLIT_REQUEST': True,
+}
+
 AUTH_USER_MODEL = 'users.User'
+
+# Stripe
+STRIPE_API_KEY = 'sk_test_51Q...'  # Получите в https://dashboard.stripe.com/test/apikeys
