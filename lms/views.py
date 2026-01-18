@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import OpenApiExample, extend_schema
 from rest_framework import viewsets, generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -90,6 +91,49 @@ class SubscriptionAPIView(APIView):
     Управление подпиской пользователя на курс
     POST: подписаться/отписаться
     """
+@extend_schema(
+    description="Управление подпиской пользователя на курс. "
+                "Если подписка есть — удаляется, если нет — создаётся.",
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'course_id': {
+                    'type': 'integer',
+                    'example': 1,
+                    'description': 'ID курса, на который подписываемся'
+                }
+            },
+            'required': ['course_id']
+        }
+    },
+    responses={
+        200: {
+            'type': 'object',
+            'properties': {
+                'message': {
+                    'type': 'string',
+                    'example': 'Подписка добавлена'
+                }
+            }
+        }
+    },
+    examples=[
+        OpenApiExample(
+            'Subscribe',
+            summary='Подписаться на курс',
+            value={'course_id': 1},
+            request_only=True
+        ),
+        OpenApiExample(
+            'Unsubscribe',
+            summary='Отписаться от курса',
+            value={'message': 'Подписка удалена'},
+            response_only=True
+        )
+    ]
+)
+class SubscriptionAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
