@@ -153,4 +153,5 @@ SPECTACULAR_SETTINGS = {
 AUTH_USER_MODEL = 'users.User'
 
 # Stripe
-STRIPE_API_KEY = 'sk_test_51Q...'  # Получите в https://dashboard.stripe.com/test/apikeys
+STRIPE_API_KEY = 'sk_test_51Q...'  # Полуgit add .
+git commit -m "feat: подключена документация и оплата через Stripe (без секретов)"чите в https://dashboard.stripe.com/test/apikeys

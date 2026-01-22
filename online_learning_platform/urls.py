@@ -31,6 +31,7 @@ urlpatterns = [
     path('api/', include('lms.urls')),
     path('api/lessons/', include('lms.urls')),
     path('api/users/', include('users.urls')),
+    path('api/payments/', include('payments.urls')),
 
     # JWT
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),   # login
