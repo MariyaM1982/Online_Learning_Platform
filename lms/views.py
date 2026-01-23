@@ -86,11 +86,6 @@ class LessonRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
             return Lesson.objects.all()
         return Lesson.objects.filter(owner=user)
 
-class SubscriptionAPIView(APIView):
-    """
-    Управление подпиской пользователя на курс
-    POST: подписаться/отписаться
-    """
 @extend_schema(
     description="Управление подпиской пользователя на курс. "
                 "Если подписка есть — удаляется, если нет — создаётся.",
@@ -133,7 +128,12 @@ class SubscriptionAPIView(APIView):
         )
     ]
 )
+
 class SubscriptionAPIView(APIView):
+    """
+    Управление подпиской пользователя на курс
+    POST: подписаться/отписаться
+    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
