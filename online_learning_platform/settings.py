@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+from decouple import config
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'users',
     'lms',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -153,5 +156,22 @@ SPECTACULAR_SETTINGS = {
 AUTH_USER_MODEL = 'users.User'
 
 # Stripe
-STRIPE_API_KEY = 'sk_test_51Q...'  # Полуgit add .
-git commit -m "feat: подключена документация и оплата через Stripe (без секретов)"чите в https://dashboard.stripe.com/test/apikeys
+STRIPE_API_KEY = 'sk_test_51Q...'
+
+# Celery Configuration
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', 'redis://127.0.0.1:6379/0')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', 'redis://127.0.0.1:6379/0')
+
+# Настройки по умолчанию
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/Moscow'
+
+# Настройка celery-beat
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+USE_TZ = True
+TIME_ZONE = 'Europe/Moscow'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
