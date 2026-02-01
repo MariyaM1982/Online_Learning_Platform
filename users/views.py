@@ -1,12 +1,17 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, permissions
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-
 from .filters import PaymentFilter
 from .models import User, Payment
-from .serializers import UserProfileSerializer, PaymentSerializer
+from .serializers import UserProfileSerializer, PaymentSerializer, UserRegisterSerializer
 
+
+class UserRegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserRegisterSerializer
+    permission_classes = [AllowAny]  # Открыт для всех
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
     """
