@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils import timezone
+from users.models import User
 
 
 class Course(models.Model):
@@ -8,6 +8,14 @@ class Course(models.Model):
     description = models.TextField(blank=True, null=True, verbose_name='Описание')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    owner = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        related_name='courses',
+        verbose_name='Владелец',
+        null=True,
+        blank=True
+    )
 
     def __str__(self):
         return self.title
@@ -25,6 +33,14 @@ class Lesson(models.Model):
     video_url = models.URLField(verbose_name='Ссылка на видео')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    owner = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        related_name='owned_lessons',
+        verbose_name='Владелец',
+        null=True,
+        blank=True
+    )
 
     def __str__(self):
         return self.title
@@ -32,3 +48,25 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = 'Урок'
         verbose_name_plural = 'Уроки'
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь'
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        verbose_name='Курс'
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата подписки')
+
+    class Meta:
+        unique_together = ('user', 'course')  # Один пользователь — одна подписка на курс
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
+    def __str__(self):
+        return f'{self.user.email} → {self.course.title}'
